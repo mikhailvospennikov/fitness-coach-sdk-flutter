@@ -60,7 +60,51 @@ class ExampleApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const TabBarPage(),
+    );
+  }
+}
+
+class TabBarPage extends StatefulWidget {
+  const TabBarPage({super.key});
+
+  @override
+  State<TabBarPage> createState() => _TabBarPageState();
+}
+
+class _TabBarPageState extends State<TabBarPage> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          const HomePage(),
+          StreamBuilder<SdkAuthState>(
+            stream: ZingSdk.instance.authState,
+            builder: (context, snapshot) {
+              final state = snapshot.data;
+              if (state is! SdkAuthStateAuthenticated) {
+                return const Center(
+                  child: Text('Log in on the SDK tab to see the program.'),
+                );
+              }
+              return ZingProgramView(key: ValueKey(state.userId));
+            },
+          ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) =>
+            setState(() => _currentIndex = index),
+        destinations: const [
+          NavigationDestination(icon: SizedBox.shrink(), label: 'SDK'),
+          NavigationDestination(icon: SizedBox.shrink(), label: 'Program'),
+        ],
+      ),
     );
   }
 }

@@ -63,7 +63,18 @@ public class ZingSdkInitializerPlugin: NSObject, FlutterPlugin {
             binaryMessenger: registrar.messenger()
         )
 
+        registrar.register(
+            ZingProgramViewFactory(plugin: instance),
+            withId: ZingProgramViewFactory.viewType
+        )
+
         registrar.addMethodCallDelegate(instance, channel: initializerChannel)
+    }
+
+    @MainActor
+    func makeProgramViewController() throws -> UIViewController {
+        guard let sdk else { throw PluginError.notInitialized }
+        return try sdk.makeScreen(.program)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
